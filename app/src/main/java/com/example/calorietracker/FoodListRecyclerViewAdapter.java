@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 public class FoodListRecyclerViewAdapter extends RecyclerView.Adapter<FoodListRecyclerViewAdapter.mViewHolder> {
     private ArrayList<FoodItem> mDataSet;
-    private LayoutInflater mLayoutInflater; // definim inflatterul pentru a lua chestii din xml
 
     public FoodListRecyclerViewAdapter(ArrayList<FoodItem> dataset) {
         mDataSet = dataset;
@@ -30,7 +29,7 @@ public class FoodListRecyclerViewAdapter extends RecyclerView.Adapter<FoodListRe
         String name = mDataSet.get(position).getmFoodItem().getName();
         double calories = mDataSet.get(position).getmFoodItem().getCalories();
         double cantity = mDataSet.get(position).getmCantity();
-        holder.update(name, calories, cantity); // facem un update prin care se afisaeza datele pe ecran
+        holder.update(name, calories, cantity);
     }
 
     @Override
@@ -54,6 +53,4 @@ public class FoodListRecyclerViewAdapter extends RecyclerView.Adapter<FoodListRe
             cantityView.setText(cantity + " g");
         }
     }
-
-
 }

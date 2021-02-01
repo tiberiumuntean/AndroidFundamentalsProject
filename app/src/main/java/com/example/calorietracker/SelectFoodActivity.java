@@ -15,23 +15,19 @@ import java.util.ArrayList;
 public class SelectFoodActivity extends AppCompatActivity{
 
     private ArrayList<Food>foodList;
-    public static final String getFoodItemMessage = "GET_FOOD_ITEM" ;
+
     private LinearLayoutManager mListLayoutManager;  // Definim Layout Manager
     private RecyclerView mList;
     private SelectFoodRVAdapter mAdapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_food);
 
-        Intent intent = getIntent();
-        String chosenMealTime = intent.getStringExtra("CHOSEN_MEAL_TIME");
-
-        Food mChicken = new Food(1,"chicken",230);
-        Food mPork = new Food(2,"Pork",250);
-        Food mApple = new Food(3,"Apple", 80);
+        Food mChicken = new Food("Chicken",230);
+        Food mPork = new Food("Pork",250);
+        Food mApple = new Food("Apple", 80);
 
         foodList = new ArrayList<>();
         foodList.add(mChicken);

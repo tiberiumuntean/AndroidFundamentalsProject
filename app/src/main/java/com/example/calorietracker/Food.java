@@ -1,22 +1,12 @@
 package com.example.calorietracker;
 
 public class Food {
-    private int id;
     private String name;
     private double calories;
 
-    public Food(int id, String name, double calories) {
-        this.id = id;
+    public Food(String name, double calories) {
         this.name = name;
         this.calories = calories;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {

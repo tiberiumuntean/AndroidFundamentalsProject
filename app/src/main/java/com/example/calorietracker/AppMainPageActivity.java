@@ -17,83 +17,81 @@ import android.widget.TextView;
 import com.example.calorietracker.room.User;
 import com.example.calorietracker.room.UserDao;
 import com.example.calorietracker.room.UserDataBase;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class AppMainPageActivity extends AppCompatActivity {
 
-    private ArrayList<MealTime> mDataSource;  //  Cream un dataSouuce in care adaugam o lista cu elemente
-    private LinearLayoutManager mListLayoutManager;  // Definim Layout Manager
-    private RecyclerView mList;
-    private RecyclerviewAdapter mAdapter;
+    private ArrayList<MealTime> mDataSource = new ArrayList<>();        // Data source pentru obiectele de tip MealTime (Breakfast, Lunch, Dinner)
+    private LinearLayoutManager mListLayoutManager;                     // Definim Layout Manager
+    private RecyclerView mList;                                         // RecyclerView pentru mDataSource
+    private RecyclerViewAdapter mAdapter;                               // RecycleViewAdapter pentru mDataSource
 
-    private ArrayList<Food> foodList;
-    private Button mButtonFoodList;
-    private ProgressBar progressBar;
+    private ProgressBar progressBar;                                    // ProgressBar pentru numarul de calorii
+    private TextView progressBarText;                                   // Textul din ProgressBar pentru numarul de calorii
 
-    TextView progressBarText;
-    User loggedInUser;
-    UserDao userDao;
-    UserDataBase dataBase;
+    private User loggedInUser;                                          // Variabila pentru a stoca utilizatorul conectat din DB
+    private UserDao userDao;
+    private UserDataBase dataBase;
 
-    private int totalCalories;
-    private double consumedCalories;
+    private int totalCalories;                                          // Variabila pentru calculul caloriilor sugerate
+    private double consumedCalories;                                    // Variabila pentru calculul caloriilor consumate
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_mainpage);
 
-        // Luam progressbar-ul
+        // Initializam SharedPreferences pentru state (Pastreaza mail-ul utilizatorului conectat)
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String loggedInUserEmail = preferences.getString("LOGIN", "");
+        SharedPreferences.Editor editor = preferences.edit(); // Initializam un editor pentru a putea insera variabile in SharedPreferences
+
+        // Initializam DB
+        dataBase = Room.databaseBuilder(this, UserDataBase.class, "user2-database.db").allowMainThreadQueries().build();
+        userDao = dataBase.getUserDao();
+        loggedInUser = userDao.getUserByEmail(loggedInUserEmail); /// Luam utilizatorul conectat din baza de date pe baza email-ului stocat in SharedPreferences
+
+        // Initializam ProgressBar-ul (ProgressBar si ProgressBarText)
         progressBarText = (TextView) findViewById(R.id.calories_start);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
-        // Luam user-ul conectat din sharedp
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String loggedInUserEmail = preferences.getString("LOGIN", "");
-
-        /////////////////////////////////
-        // Initializam DB
-        dataBase = Room.databaseBuilder(this, UserDataBase.class, "user2-database.db")
-                .allowMainThreadQueries()
-                .build();
-        userDao = dataBase.getUserDao();
-
-        // Luam user-ul conectat din DB
-        loggedInUser = userDao.getUserByEmail(loggedInUserEmail);
-
-        //////////////
-        // Setam caloriile
-        if(loggedInUser.getGender() == true){ // baiat
-            totalCalories = (int)(1.55*(10*loggedInUser.getWeight() + 6.25*loggedInUser.getHeight() - 5*loggedInUser.getAge()  + 5));
+        // Calculul caloriilor total in functie de sex
+        if (loggedInUser.getGender() == true) {
+            totalCalories = (int) (1.55 * (10 * loggedInUser.getWeight() + 6.25 * loggedInUser.getHeight() - 5 * loggedInUser.getAge() + 5));
         } else {
-            totalCalories = (int)(1.55*(10*loggedInUser.getWeight() + 6.25*loggedInUser.getHeight() - 5*loggedInUser.getAge()  - 161));
+            totalCalories = (int) (1.55 * (10 * loggedInUser.getWeight() + 6.25 * loggedInUser.getHeight() - 5 * loggedInUser.getAge() - 161));
         }
 
+        // Setam numarul caloriilor totale in ProgressBar
         progressBarText.setText(consumedCalories + " / " + totalCalories);
 
-        /////////////////////////////////////////////////////
-        // Adaugam meals
-        mDataSource = new ArrayList<>();
+        // Declaram cele 3 perioade ale zilei
         MealTime breakfast = new MealTime("Breakfast");
         MealTime lunch = new MealTime("Lunch");
         MealTime dinner = new MealTime("Dinner");
 
+        // Adaugam in dataSource cele 3 perioade declarate
         mDataSource.add(breakfast);
         mDataSource.add(lunch);
         mDataSource.add(dinner);
 
-        ////////////////////////////////////////////////////
-
-        //// POPULARE RECYCLER VIEW
+        // Trimitem dataSource-ul catre RecyclerView
         mListLayoutManager = new LinearLayoutManager(this);
         mList = findViewById(R.id.activity_appMainPageRecycler);
-        mAdapter = new RecyclerviewAdapter(this, mDataSource);
-
+        mAdapter = new RecyclerViewAdapter(mDataSource);
         mList.setLayoutManager(mListLayoutManager);
         mList.setAdapter(mAdapter);
 
-        /// PRELUARE ALIMENT ADAUGAT DIN ADD FOOD
+        addNewItemToDataSource(preferences, editor, breakfast, lunch, dinner);
+    }
+
+    // Metoda pentru adaugarea unui nou aliment din Dialog
+    private void addNewItemToDataSource(SharedPreferences preferences, SharedPreferences.Editor editor, MealTime breakfast, MealTime lunch, MealTime dinner) {
         Intent intent = getIntent();
 
         String foodName = intent.getStringExtra("FOOD_NAME");
@@ -101,37 +99,37 @@ public class AppMainPageActivity extends AppCompatActivity {
         String foodCalories = intent.getStringExtra("FOOD_CALORIES");
 
         if (foodCalories != null) {
-            Food f = new Food(2, foodName, Double.parseDouble(foodCalories));
-            FoodItem fi = new FoodItem(f, Double.parseDouble(foodCty));
+            Food newFood = new Food(foodName, Double.parseDouble(foodCalories));
+            FoodItem newFoodItem = new FoodItem(newFood, Double.parseDouble(foodCty));
 
             String chosenMealTime = preferences.getString("CHOSEN_MEAL_TIME", "");
 
-            if(!chosenMealTime.equalsIgnoreCase("")) {
-
+            // In functie de momentul zilei ales, adaugam alimentul in categoria corespunzatoare
+            if (!chosenMealTime.equalsIgnoreCase("")) {
                 if (chosenMealTime == "Breakfast") {
-                    breakfast.addButtonItem(fi);
+                    breakfast.addSubItem(newFoodItem);
                 } else if (chosenMealTime == "Lunch") {
-                    lunch.addButtonItem(fi);
+                    lunch.addSubItem(newFoodItem);
                 } else if (chosenMealTime == "Dinner") {
-                    dinner.addButtonItem(fi);
+                    dinner.addSubItem(newFoodItem);
                 }
 
-                consumedCalories = fi.getmFoodItem().getCalories() * fi.getmCantity()/100;
+                // Actualizam numarul de calorii consumate;
+                consumedCalories = newFoodItem.getmFoodItem().getCalories();
                 progressBarText.setText(consumedCalories + " / " + totalCalories);
-                progressBar.setProgress((int) consumedCalories*100/totalCalories);
-
+                progressBar.setProgress((int) consumedCalories * 100 / totalCalories);
             }
         }
-
     }
 
     public void doLogout(View view) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(view.getContext());
         SharedPreferences.Editor editor = preferences.edit();
+
         editor.putString("LOGIN", "");
         editor.apply();
 
-        Intent i = new Intent(AppMainPageActivity.this, MainActivity.class);
-        startActivity(i);
+        Intent intent = new Intent(AppMainPageActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 }

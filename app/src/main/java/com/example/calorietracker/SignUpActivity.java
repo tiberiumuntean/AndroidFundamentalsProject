@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.calorietracker.room.User;
 import com.example.calorietracker.room.UserDao;
@@ -15,8 +17,9 @@ import com.example.calorietracker.room.UserDataBase;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    EditText editTextUsername, editTextEmail, editTextPassword, editTextCnfPassword;
-    Button buttonRegister;
+    private EditText editTextUsername, editTextEmail, editTextPassword;
+    private Button buttonRegister;
+    private CheckBox termsCheckbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,20 +30,29 @@ public class SignUpActivity extends AppCompatActivity {
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
+        termsCheckbox = findViewById(R.id.terms_and_conditions_checkbox);
 
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String userName = editTextUsername.getText().toString().trim();
-                String email = editTextEmail.getText().toString().trim();
-                String password = editTextPassword.getText().toString().trim();
+                if(termsCheckbox.isChecked()) {
+                    String userName = editTextUsername.getText().toString().trim();
+                    String email = editTextEmail.getText().toString().trim();
+                    String password = editTextPassword.getText().toString().trim();
 
-                Intent moveToRegister = new Intent(SignUpActivity.this, FinalStepsSignUpActivity.class);
-                moveToRegister.putExtra("REGISTER_EMAIL", email);
-                moveToRegister.putExtra("REGISTER_USERNAME", userName);
-                moveToRegister.putExtra("REGISTER_PASSWORD", password);
+                    if(!userName.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
+                        Intent moveToRegister = new Intent(SignUpActivity.this, FinalStepsSignUpActivity.class);
+                        moveToRegister.putExtra("REGISTER_EMAIL", email);
+                        moveToRegister.putExtra("REGISTER_USERNAME", userName);
+                        moveToRegister.putExtra("REGISTER_PASSWORD", password);
 
-                startActivity(moveToRegister);
+                        startActivity(moveToRegister);
+                    } else {
+                        Toast.makeText(v.getContext(), "Please fill all the fields!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(v.getContext(), "Please accept the terms and conditions before continuing!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -49,5 +61,4 @@ public class SignUpActivity extends AppCompatActivity {
     public void doGoBack(View view) {
         finish();
     }
-
 }

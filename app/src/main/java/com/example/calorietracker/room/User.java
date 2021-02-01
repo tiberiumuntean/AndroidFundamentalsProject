@@ -18,7 +18,7 @@ public class User implements Serializable {
     private int age;
     private double height;
     private double weight;
-    private Boolean gender; // 0 - fata, 1 - baiat
+    private Boolean gender; // 1 - baiat, 0 - fata
 
     public User(String userName, String password, String email, int age, double height, double weight, Boolean gender) {
         this.userName = userName;
@@ -29,7 +29,6 @@ public class User implements Serializable {
         this.weight = weight;
         this.gender = gender;
     }
-
 
     @NonNull
     public int getAge() {

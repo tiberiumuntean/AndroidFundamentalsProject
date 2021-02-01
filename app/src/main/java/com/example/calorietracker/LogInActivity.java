@@ -19,26 +19,25 @@ import com.example.calorietracker.room.UserDataBase;
 
 public class LogInActivity extends AppCompatActivity {
 
-    EditText editTextEmail, editTextPassword;
-    Button buttonLogin;
-    TextView textViewRegister;
-    UserDao db;
-    UserDataBase dataBase;
+    private EditText editTextEmail, editTextPassword;
+    private Button buttonLogin;
+
+    private UserDao db;
+    private UserDataBase dataBase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Initializam DB
+        dataBase = Room.databaseBuilder(this, UserDataBase.class, "user2-database.db").allowMainThreadQueries().build();
+        db = dataBase.getUserDao();
+
+        // Initializam componentele din formular
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonLogin = findViewById(R.id.buttonLogin);
-
-        dataBase = Room.databaseBuilder(this, UserDataBase.class, "user2-database.db")
-                .allowMainThreadQueries()
-                .build();
-
-        db = dataBase.getUserDao();
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +45,9 @@ public class LogInActivity extends AppCompatActivity {
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
+                // Verifcam daca exista un utilizator cu emailul si parola introduse
                 User user = db.getUser(email, password);
+
                 if (user != null) {
                     Intent i = new Intent(LogInActivity.this, AppMainPageActivity.class);
                     i.putExtra("User", user);
@@ -59,11 +60,10 @@ public class LogInActivity extends AppCompatActivity {
                     startActivity(i);
                     finish();
                 } else {
-                    Toast.makeText(LogInActivity.this, "Unregistered user, or incorrect", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LogInActivity.this, "Wrong email or password! Try again!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
     }
 
     public void DoGoBack(View view) {

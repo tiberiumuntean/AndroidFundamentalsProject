@@ -34,12 +34,12 @@ public class MealTime {
         this.itemTitle = itemTitle;
     }
 
-    public void addSubItem(Food f, int c){
-        FoodItem fi = new FoodItem(f, c);
-        subItemlist.add(fi);
+    public void addSubItem(Food food, int cantity) {
+        FoodItem newFoodItem = new FoodItem(food, cantity);
+        subItemlist.add(newFoodItem);
     }
 
-    public void addButtonItem(FoodItem f){
-        subItemlist.add(f);
+    public void addSubItem(FoodItem foodItem) {
+        subItemlist.add(foodItem);
     }
 }
