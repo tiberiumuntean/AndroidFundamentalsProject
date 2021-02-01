@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+
+    <ImageView
+        android:id="@+id/logo_mainimage"
+        android:layout_width="108dp"
+        android:layout_height="108dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/apple" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/logo_mainimage"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="GETFIT"
+        android:textColor="#ffffff"
+        android:textSize="40sp"
+
+        />
+
+    <Button
+        android:id="@+id/button_signup_activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_above="@+id/button_login_activity_main"
+        android:backgroundTint="@color/cardview_light_background"
+        android:padding="8dp"
+        android:text="Sign Up"
+        android:textAllCaps="false"
+        android:textColor="#3B7BFC"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/button_login_activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="8dp"
+        android:text="Log In"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+
+</RelativeLayout>

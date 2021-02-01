@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    android:padding="16dp">
+
+
+    <ImageView
+        android:id="@+id/backarrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="doGoBack"
+        android:src="@drawable/back_arrow" />
+
+    <TextView
+        android:id="@+id/welcome_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:padding="8dp"
+        android:text="Sign Up"
+        android:textColor="#ffffff"
+        android:textSize="40sp" />
+
+    <LinearLayout
+        android:id="@+id/signup_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome_text"
+        android:layout_marginTop="80dp"
+        android:orientation="vertical">
+
+
+        <EditText
+            android:id="@+id/editTextUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:drawableStart="@drawable/user"
+            android:drawablePadding="12dp"
+            android:hint="Username"
+            android:imeOptions="actionNext"
+            android:inputType="text" />
+
+
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:drawableStart="@drawable/email"
+            android:drawablePadding="12dp"
+            android:hint="Email"
+            android:imeOptions="actionNext"
+            android:inputType="textEmailAddress" />
+
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:drawableStart="@drawable/password"
+            android:drawablePadding="12dp"
+            android:hint="Password"
+            android:imeOptions="actionNext"
+            android:inputType="textPassword" />
+
+
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/terms_and_conditions_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signup_layout"
+        android:layout_marginTop="8dp"
+        android:text="Agree with Terms and Conditions"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/cardview_light_background"
+        android:text="Sign Up"
+        android:textAllCaps="false"
+        android:textColor="#3B7BFC"
+        android:textSize="16sp" />
+</RelativeLayout>
+
+
+
