@@ -25,9 +25,9 @@ public class SelectFoodActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_food);
 
-        Food mChicken = new Food("Chicken",230);
-        Food mPork = new Food("Pork",250);
-        Food mApple = new Food("Apple", 80);
+        Food mChicken = new Food("Chicken",115);
+        Food mPork = new Food("Pork",125);
+        Food mApple = new Food("Apple", 70);
 
         foodList = new ArrayList<>();
         foodList.add(mChicken);

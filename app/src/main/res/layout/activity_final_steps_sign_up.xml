@@ -46,7 +46,7 @@
             android:drawablePadding="12dp"
             android:hint="Age"
             android:imeOptions="actionNext"
-            android:inputType="text" />
+            android:inputType="number" />
 
 
         <EditText
@@ -57,7 +57,7 @@
             android:drawablePadding="12dp"
             android:hint="Height"
             android:imeOptions="actionNext"
-            android:inputType="text" />
+            android:inputType="number" />
 
 
         <EditText
@@ -68,7 +68,7 @@
             android:drawablePadding="12dp"
             android:hint="Weight"
             android:imeOptions="actionNext"
-            android:inputType="text" />
+            android:inputType="number" />
 
         <TextView
             android:layout_width="match_parent"

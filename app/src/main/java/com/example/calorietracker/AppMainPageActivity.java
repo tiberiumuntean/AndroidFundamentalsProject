@@ -1,5 +1,6 @@
 package com.example.calorietracker;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,6 +8,7 @@ import androidx.room.Room;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -39,7 +41,16 @@ public class AppMainPageActivity extends AppCompatActivity {
     private UserDataBase dataBase;
 
     private int totalCalories;                                          // Variabila pentru calculul caloriilor sugerate
-    private double consumedCalories;                                    // Variabila pentru calculul caloriilor consumate
+    private double consumedCalories = 0;                                // Variabila pentru calculul caloriilor consumate
+
+    // Declaram cele 3 perioade ale zilei
+    private MealTime breakfast = new MealTime("Breakfast");
+    private MealTime lunch = new MealTime("Lunch");
+    private MealTime dinner = new MealTime("Dinner");
+
+    private ArrayList<FoodItem> breakfastMeals = new ArrayList<>();
+    private ArrayList<FoodItem> lunchMeals = new ArrayList<>();
+    private ArrayList<FoodItem> dinnerMeals = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +81,6 @@ public class AppMainPageActivity extends AppCompatActivity {
         // Setam numarul caloriilor totale in ProgressBar
         progressBarText.setText(consumedCalories + " / " + totalCalories);
 
-        // Declaram cele 3 perioade ale zilei
-        MealTime breakfast = new MealTime("Breakfast");
-        MealTime lunch = new MealTime("Lunch");
-        MealTime dinner = new MealTime("Dinner");
-
         // Adaugam in dataSource cele 3 perioade declarate
         mDataSource.add(breakfast);
         mDataSource.add(lunch);
@@ -87,7 +93,67 @@ public class AppMainPageActivity extends AppCompatActivity {
         mList.setLayoutManager(mListLayoutManager);
         mList.setAdapter(mAdapter);
 
+        loadMealItems(preferences);
         addNewItemToDataSource(preferences, editor, breakfast, lunch, dinner);
+
+        // Actualizam numarul de calorii consumate;
+        for (int i = 0; i < breakfast.getSubItemlist().size(); i++) {
+            consumedCalories += breakfast.getSubItemlist().get(i).getmFoodItem().getCalories();
+        }
+        for (int i = 0; i < lunch.getSubItemlist().size(); i++) {
+            consumedCalories += lunch.getSubItemlist().get(i).getmFoodItem().getCalories();
+        }
+        for (int i = 0; i < dinner.getSubItemlist().size(); i++) {
+            consumedCalories += dinner.getSubItemlist().get(i).getmFoodItem().getCalories();
+        }
+
+        progressBarText.setText(consumedCalories + " / " + totalCalories);
+        progressBar.setProgress((int) consumedCalories * 100 / totalCalories);
+    }
+
+    private void loadMealItems(SharedPreferences preferences) {
+        Gson gBreakfastItems = new Gson();
+        Gson gLunchItems = new Gson();
+        Gson gDinnerItems = new Gson();
+
+        String jBreakfastItems = preferences.getString("FOOD_LIST_BREAKFAST", null);
+        String jLunchItems = preferences.getString("FOOD_LIST_LUNCH", null);
+        String jDinnerItems = preferences.getString("FOOD_LIST_DINNER", null);
+
+        Type type = new TypeToken<ArrayList<FoodItem>>() {
+        }.getType();
+
+        breakfastMeals = gBreakfastItems.fromJson(jBreakfastItems, type);
+        lunchMeals = gLunchItems.fromJson(jLunchItems, type);
+        dinnerMeals = gDinnerItems.fromJson(jDinnerItems, type);
+
+        updateMealArrays();
+    }
+
+    private void updateMealArrays() {
+        if (breakfastMeals != null) {
+            for (int i = 0; i < breakfastMeals.size(); i++) {
+                breakfast.addSubItem(breakfastMeals.get(i));
+            }
+        } else {
+            breakfastMeals = new ArrayList<>();
+        }
+
+        if (lunchMeals != null) {
+            for (int i = 0; i < lunchMeals.size(); i++) {
+                lunch.addSubItem(lunchMeals.get(i));
+            }
+        } else {
+            lunchMeals = new ArrayList<>();
+        }
+
+        if (dinnerMeals != null) {
+            for (int i = 0; i < dinnerMeals.size(); i++) {
+                dinner.addSubItem(dinnerMeals.get(i));
+            }
+        } else {
+            dinnerMeals = new ArrayList<>();
+        }
     }
 
     // Metoda pentru adaugarea unui nou aliment din Dialog
@@ -105,21 +171,37 @@ public class AppMainPageActivity extends AppCompatActivity {
             String chosenMealTime = preferences.getString("CHOSEN_MEAL_TIME", "");
 
             // In functie de momentul zilei ales, adaugam alimentul in categoria corespunzatoare
-            if (!chosenMealTime.equalsIgnoreCase("")) {
-                if (chosenMealTime == "Breakfast") {
+            if (!chosenMealTime.isEmpty()) {
+                if (chosenMealTime.equals("Breakfast")) {
+                    breakfastMeals.add(newFoodItem);
                     breakfast.addSubItem(newFoodItem);
-                } else if (chosenMealTime == "Lunch") {
+                } else if (chosenMealTime.equals("Lunch")) {
+                    lunchMeals.add(newFoodItem);
                     lunch.addSubItem(newFoodItem);
-                } else if (chosenMealTime == "Dinner") {
+                } else if (chosenMealTime.equals("Dinner")) {
+                    dinnerMeals.add(newFoodItem);
                     dinner.addSubItem(newFoodItem);
                 }
 
-                // Actualizam numarul de calorii consumate;
-                consumedCalories = newFoodItem.getmFoodItem().getCalories();
-                progressBarText.setText(consumedCalories + " / " + totalCalories);
-                progressBar.setProgress((int) consumedCalories * 100 / totalCalories);
+                saveMealItems(editor);
             }
         }
+    }
+
+    private void saveMealItems(SharedPreferences.Editor editor) {
+        Gson gBreakfastItems = new Gson();
+        Gson gLunchItems = new Gson();
+        Gson gDinnerItems = new Gson();
+
+        String jBreakfastItems = gBreakfastItems.toJson(breakfastMeals);
+        String jLunchItems = gLunchItems.toJson(lunchMeals);
+        String jDinnerItems = gDinnerItems.toJson(dinnerMeals);
+
+        editor.putString("FOOD_LIST_BREAKFAST", jBreakfastItems);
+        editor.putString("FOOD_LIST_LUNCH", jLunchItems);
+        editor.putString("FOOD_LIST_DINNER", jDinnerItems);
+
+        editor.apply();
     }
 
     public void doLogout(View view) {
@@ -127,6 +209,10 @@ public class AppMainPageActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putString("LOGIN", "");
+        editor.putString("FOOD_LIST_BREAKFAST", "");
+        editor.putString("FOOD_LIST_LUNCH", "");
+        editor.putString("FOOD_LIST_DINNER", "");
+
         editor.apply();
 
         Intent intent = new Intent(AppMainPageActivity.this, MainActivity.class);
